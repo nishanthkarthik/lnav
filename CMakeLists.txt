@@ -41,6 +41,10 @@ else ()
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages)
 
     find_package(SQLite3 REQUIRED)
+    if (SQLite3_VERSION VERSION_GREATER_EQUAL "3.38.0")
+        target_compile_definitions(lnav_deps INTERFACE HAVE_SQLITE3_ERROR_OFFSET)
+    endif ()
+
     find_package(pcre2 REQUIRED)
     find_package(Unistring REQUIRED)
 
