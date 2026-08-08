@@ -44,9 +44,14 @@ else ()
     find_package(pcre2 REQUIRED)
     find_package(Unistring REQUIRED)
 
+    set(SQLITE_LIB SQLite::SQLite3)
+    if(TARGET SQLite3::SQLite3)
+        set(SQLITE_LIB SQLite3::SQLite3)
+    endif ()
+
     target_link_libraries(lnav_deps INTERFACE
             CURL::libcurl
-            SQLite3::SQLite3
+            ${SQLITE_LIB}
             BZip2::BZip2
             pcre2::pcre2
             LibArchive::LibArchive
