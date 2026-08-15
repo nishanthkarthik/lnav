@@ -17,15 +17,18 @@ include(cmake/options.cmake)
 
 find_package(PkgConfig REQUIRED)
 
+add_library(lnav_deps INTERFACE)
+
+find_package(BZip2 REQUIRED)
+find_package(LibArchive REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(CURL REQUIRED)
+
 if (LNAV_USE_VCPKG)
     find_package(unofficial-sqlite3 CONFIG REQUIRED)
-    find_package(BZip2 REQUIRED)
-    find_package(LibArchive REQUIRED)
-    find_package(ZLIB REQUIRED)
     find_package(pcre2 CONFIG REQUIRED)
-    find_package(CURL REQUIRED)
 
-    set(lnav_LIBS
+    target_link_libraries(lnav_deps PUBLIC
             CURL::libcurl
             unofficial::sqlite3::sqlite3
             BZip2::BZip2
@@ -38,21 +41,18 @@ else ()
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/packages)
 
     find_package(SQLite3 REQUIRED)
-    find_package(BZip2 REQUIRED)
-    find_package(LibArchive REQUIRED)
-    find_package(ZLIB REQUIRED)
     find_package(pcre2 REQUIRED)
-    find_package(CURL REQUIRED)
     find_package(Unistring REQUIRED)
 
-    set(lnav_LIBS
+    target_link_libraries(lnav_deps INTERFACE
             CURL::libcurl
             SQLite3::SQLite3
             BZip2::BZip2
             pcre2::pcre2
             LibArchive::LibArchive
             ZLIB::ZLIB
-            Unistring::Unistring)
+            Unistring::Unistring
+    )
 endif ()
 
 add_subdirectory(src)

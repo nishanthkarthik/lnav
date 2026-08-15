@@ -59,7 +59,7 @@ add_test(NAME test_log_accel COMMAND test_log_accel)
 
 add_executable(lnav_doctests lnav_doctests.cc test_stubs.cc)
 target_include_directories(lnav_doctests PUBLIC ../src/third-party/doctest-root)
-target_link_libraries(lnav_doctests diag ${lnav_LIBS})
+target_link_libraries(lnav_doctests diag lnav_deps)
 add_test(NAME lnav_doctests COMMAND lnav_doctests)
 
 add_executable(test_reltime test_reltime.cc test_stubs.cc)

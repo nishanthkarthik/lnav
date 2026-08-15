@@ -407,7 +407,7 @@ add_library(
         third-party/date/src/tz.cpp
 )
 target_include_directories(datepp PUBLIC third-party/date/include)
-target_link_libraries(datepp ${lnav_LIBS})
+target_link_libraries(datepp lnav_deps)
 
 add_library(
         cppscnlib STATIC
@@ -879,16 +879,23 @@ target_include_directories(diag PUBLIC . fmtlib ${CMAKE_CURRENT_BINARY_DIR}
 )
 target_compile_options(diag PRIVATE ${CURSES_CFLAGS})
 
-add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/target/release/liblnav_rs_ext.a
-        COMMAND env CARGO_TARGET_DIR=target cargo build --manifest-path ${CMAKE_CURRENT_SOURCE_DIR}/third-party/lnav-rs-ext/Cargo.toml --package lnav-rs-ext --release
-        DEPENDS third-party/lnav-rs-ext/src/lib.rs third-party/lnav-rs-ext/src/ext_access.rs
-)
-add_custom_target(
-        lnav_rs_ext
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/target/release/liblnav_rs_ext.a
-)
-add_dependencies(diag lnav_rs_ext)
+set(LNAV_RS_LIB)
+
+if (LNAV_USE_CARGO)
+    message(STATUS "Using cargo for extensions")
+    set(LNAV_RS_LIB ${CMAKE_CURRENT_BINARY_DIR}/target/release/liblnav_rs_ext.a)
+    add_custom_command(
+            OUTPUT ${LNAV_RS_LIB}
+            COMMAND env CARGO_TARGET_DIR=target cargo build --manifest-path ${CMAKE_CURRENT_SOURCE_DIR}/third-party/lnav-rs-ext/Cargo.toml --package lnav-rs-ext --release
+            DEPENDS third-party/lnav-rs-ext/src/lib.rs third-party/lnav-rs-ext/src/ext_access.rs
+    )
+    add_custom_target(
+            lnav_rs_ext
+            DEPENDS ${LNAV_RS_LIB}
+    )
+    add_dependencies(diag lnav_rs_ext)
+    target_compile_definitions(diag PUBLIC HAVE_RUST_DEPS=1)
+endif ()
 
 target_link_libraries(
         diag
@@ -906,8 +913,8 @@ target_link_libraries(
         cppfmt
         base64
         spookyhash
-        ${lnav_LIBS}
-        ${CMAKE_CURRENT_BINARY_DIR}/target/release/liblnav_rs_ext.a
+        lnav_deps
+        ${LNAV_RS_LIB}
 )
 target_compile_definitions(diag PRIVATE SQLITE_OMIT_LOAD_EXTENSION)
 
